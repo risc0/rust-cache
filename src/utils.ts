@@ -2,6 +2,8 @@ import * as core from "@actions/core";
 import * as exec from "@actions/exec";
 import * as buildjetCache from "@actions/buildjet-cache";
 import * as ghCache from "@actions/cache";
+// @ts-ignore
+import * as s3Cache from "s3Cache";
 
 export function reportError(e: any) {
   const { commandFailed } = e;
@@ -50,7 +52,17 @@ export interface CacheProvider {
 
 export function getCacheProvider(): CacheProvider {
   const cacheProvider = core.getInput("cache-provider");
-  const cache = cacheProvider === "github" ? ghCache : cacheProvider === "buildjet" ? buildjetCache : undefined;
+  let cache = undefined;
+  if (cacheProvider == "github") {
+    cache = ghCache;
+  }
+  else if (cacheProvider == "buildjet") {
+    cache = buildjetCache;
+  }
+  else if (cacheProvider == "s3") {
+    cache = s3Cache;
+  }
+  // const cache = cacheProvider === "github" ? ghCache : cacheProvider === "buildjet" ? buildjetCache : undefined;
 
   if (!cache) {
     throw new Error(`The \`cache-provider\` \`{cacheProvider}\` is not valid.`);
